@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import org.exemple.iotsolarapi.readingDevices.dao.model.ReadingDevice
+import org.exemple.iotsolarapi.readingDevices.dao.model.ReadingDeviceName
 import java.time.LocalDateTime
 
 @Entity
@@ -19,12 +20,16 @@ class Temperature(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "temperatures_seq")
     @Column(name = "id", nullable = false)
-    private var id: Long? = null,
+    var id: Long? = null,
     @Column(nullable = false)
-    private var value: Double,
+    var value: Double,
     @Column(nullable = false)
-    private var collectionDate: LocalDateTime,
+    var collectionDate: LocalDateTime,
     @ManyToOne
     @JoinColumn(name="reading_device_id", nullable=false)
-    private var readingDevice: ReadingDevice,
-)
+    var readingDevice: ReadingDevice,
+) {
+    fun readingDeviceName(): ReadingDeviceName {
+        return readingDevice.name
+    }
+}
