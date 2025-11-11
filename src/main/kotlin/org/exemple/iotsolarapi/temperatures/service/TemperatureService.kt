@@ -22,17 +22,20 @@ class TemperatureService(
 ) {
     fun getAllTemperaturesForStartDateAndEndDate(
         aggregationType: AggregationType?,
-        startDate: LocalDate?,
-        endDate: LocalDate?
+        startDate: LocalDateTime?,
+        endDate: LocalDateTime?
     ): List<TemperatureDto> {
         val temperatures = if (startDate != null && endDate != null) {
-            temperatureRepository.findByCollectionDateBetween(startDate.atStartOfDay(), endDate.atStartOfDay())
+            temperatureRepository.findByCollectionDateBetween(startDate, endDate)
         } else {
             temperatureRepository.findAll()
         }
 
+        val temperaturesDto = mutableListOf<TemperatureDto>()
+
         if (aggregationType != null) {
-            val temperaturesByDateByReadingDevice = HashMap<ReadingDevice, HashMap<LocalDateTime, MutableList<Temperature>>>()
+            val temperaturesByDateByReadingDevice =
+                HashMap<ReadingDevice, HashMap<LocalDateTime, MutableList<Temperature>>>()
 
             temperatures.forEach { temperature ->
                 val collectionDate = temperature.collectionDate
@@ -77,12 +80,30 @@ class TemperatureService(
                 temperaturesByDateByReadingDevice[readingDevice]?.get(dateKey)?.add(temperature)
             }
 
-            temperaturesByDateByReadingDevice.keys.forEach { readingDevice ->
+            temperaturesByDateByReadingDevice.forEach { entryMapByReadingDevice ->
+                val readingDevice = entryMapByReadingDevice.key
 
+                entryMapByReadingDevice.value.forEach { entryTemperaturesByDate ->
+                    val date = entryTemperaturesByDate.key
+                    val temperatures = entryTemperaturesByDate.value
+
+                    val sum = temperatures.map { it.value }.average()
+
+                    temperaturesDto.add(TemperatureDto(
+                        null,
+                        sum,
+                        date,
+                        readingDevice.name
+                    ))
+                }
             }
+        } else {
+            temperaturesDto.addAll(temperatureDtoFactory.temperaturesDto(temperatures))
         }
 
-        return temperatureDtoFactory.temperaturesDto(temperatures)
+        temperaturesDto.sortByDescending { it.collectionDate }
+
+        return temperaturesDto
     }
 
     /**
@@ -94,8 +115,8 @@ class TemperatureService(
      * @return a list of temperatures for the table detail.
      */
     fun getTemperaturesDetail(
-        startDate: LocalDate,
-        endDate: LocalDate,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
         readingDeviceName: ReadingDeviceName
     ): List<TemperatureDto> {
         val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
@@ -103,8 +124,8 @@ class TemperatureService(
         }
         val temperatures = temperatureRepository.findByReadingDeviceAndCollectionDateBetweenOrderByCollectionDateDesc(
             readingDevice,
-            startDate.atStartOfDay(),
-            endDate.atStartOfDay()
+            startDate,
+            endDate
         )
 
         return temperatureDtoFactory.temperaturesDto(temperatures)

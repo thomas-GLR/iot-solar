@@ -33,15 +33,16 @@ CREATE TABLE resistance_state
 
 CREATE SEQUENCE resistance_state_id_seq INCREMENT BY 50 START 1;
 
-CREATE TABLE esp_parameter
+CREATE TABLE parameters
 (
     id    int8         NOT NULL,
     name  VARCHAR(255) NOT NULL,
     value VARCHAR(255) NOT NULL,
-    CONSTRAINT esp_parameter_pkey PRIMARY KEY (id)
+    CONSTRAINT parameters_pkey PRIMARY KEY (id),
+    CONSTRAINT parameters_name_uk UNIQUE (name)
 );
 
-CREATE SEQUENCE esp_parameter_id_seq INCREMENT BY 50 START 1;
+CREATE SEQUENCE parameters_id_seq INCREMENT BY 50 START 1;
 
 CREATE TABLE users
 (
