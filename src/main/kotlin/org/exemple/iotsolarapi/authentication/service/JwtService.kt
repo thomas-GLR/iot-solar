@@ -20,24 +20,30 @@ class JwtService {
     @Value("\${security.jwt.expiration-time}")
     private val jwtExpiration: Long = 0
 
-    fun generateToken(username: String?): String {
-        val claims: MutableMap<String?, Any?> = HashMap()
-        return createToken(claims, username)
+    @Value("\${security.jwt.refresh-expiration-time}")
+    private val refreshExpiration: Long = 0
+
+    fun generateToken(username: String): String {
+        username
+        return createToken(username, jwtExpiration)
     }
 
-    private fun createToken(claims: MutableMap<String?, Any?>?, username: String?): String {
+    fun generateRefreshToken(username: String): String {
+        return createToken(username, refreshExpiration)
+    }
+
+    private fun createToken(username: String, expiration: Long): String {
         val now = Date()
-        val expiryDate = Date(now.time + jwtExpiration)
+        val expiryDate = Date(now.time + expiration)
 
         return Jwts.builder()
-        .claims()
+            .claims()
             .issuedAt(now)
             .expiration(expiryDate)
             .subject(username)
-            .add(claims)
             .and()
             .signWith(getSignKey())
-            .compact();
+            .compact()
     }
 
     private fun getSignKey(): SecretKey {
@@ -73,5 +79,13 @@ class JwtService {
     fun validateToken(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
         return (username == userDetails.username && !isTokenExpired(token))
+    }
+
+    fun validateToken(token: String): Boolean {
+        return try {
+            !isTokenExpired(token)
+        } catch (e: Exception) {
+            false
+        }
     }
 }
