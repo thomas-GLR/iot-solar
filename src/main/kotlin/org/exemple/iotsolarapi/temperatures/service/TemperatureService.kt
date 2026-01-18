@@ -1,5 +1,6 @@
 package org.exemple.iotsolarapi.temperatures.service
 
+import jakarta.transaction.Transactional
 import org.exemple.iotsolarapi.exception.IotSolarException
 import org.exemple.iotsolarapi.readingDevices.dao.model.ReadingDevice
 import org.exemple.iotsolarapi.readingDevices.dao.model.ReadingDeviceName
@@ -146,6 +147,22 @@ class TemperatureService(
         val temperature = Temperature(
             null,
             createTemperatureDto.value,
+            now(),
+            readingDevice
+        )
+
+        temperatureRepository.save(temperature)
+    }
+
+    @Transactional
+    fun createTemperature(sensorValue: Double, readingDeviceName: ReadingDeviceName) {
+        val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
+            IotSolarException.readingDeviceNameNotExist(readingDeviceName)
+        }
+
+        val temperature = Temperature(
+            null,
+            sensorValue,
             now(),
             readingDevice
         )

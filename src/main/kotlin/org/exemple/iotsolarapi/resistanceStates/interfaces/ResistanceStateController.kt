@@ -1,5 +1,6 @@
 package org.exemple.iotsolarapi.resistanceStates.interfaces
 
+import org.exemple.iotsolarapi.resistanceStates.interfaces.dto.CreateResistanceStateDto
 import org.exemple.iotsolarapi.resistanceStates.interfaces.dto.ResistanceStateDto
 import org.exemple.iotsolarapi.resistanceStates.service.ResistanceStateService
 import org.springframework.http.HttpStatus
@@ -27,7 +28,7 @@ class ResistanceStateController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createAndSendRequestToEsp32(@RequestBody resistanceStateDto: ResistanceStateDto): ResistanceStateDto {
-        return resistanceStateService.createAndSendRequestToEsp32(resistanceStateDto);
+    suspend fun createAndSendRequestToEsp32(@RequestBody createResistanceStateDto: CreateResistanceStateDto): ResistanceStateDto {
+        return resistanceStateService.createAndSendRequestToEsp32(createResistanceStateDto)
     }
 }

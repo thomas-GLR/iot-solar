@@ -1,9 +1,11 @@
 package org.exemple.iotsolarapi.resistanceStates.service
 
-import org.exemple.iotsolarapi.parameters.interfaces.dto.EspParameterDto
+import org.exemple.iotsolarapi.exception.IotSolarException
+import org.exemple.iotsolarapi.mqtt.service.MqttClientHelper
 import org.exemple.iotsolarapi.parameters.service.ParameterService
 import org.exemple.iotsolarapi.resistanceStates.dao.model.ResistanceState
 import org.exemple.iotsolarapi.resistanceStates.dao.repository.ResistanceStateRepository
+import org.exemple.iotsolarapi.resistanceStates.interfaces.dto.CreateResistanceStateDto
 import org.exemple.iotsolarapi.resistanceStates.interfaces.dto.ResistanceStateDto
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime.now
@@ -13,8 +15,10 @@ import kotlin.jvm.optionals.getOrElse
 class ResistanceStateService(
     private val resistanceStateRepository: ResistanceStateRepository,
     private val resistanceStateDtoFactory: ResistanceStateDtoFactory,
-    private val parameterService: ParameterService
+    private val mqttClientHelper: MqttClientHelper
 ) {
+    private val TOPIC_RESISTANCE = "iotsolar/resistance"
+
     fun getLastResistanceState(): ResistanceStateDto {
         val lastResistanceStateOpt = resistanceStateRepository.findTopByOrderByLastUpdateDesc()
 
@@ -35,23 +39,27 @@ class ResistanceStateService(
         return resistanceStateDtoFactory.resistanceStatesDtos(resistanceStates)
     }
 
-    fun createAndSendRequestToEsp32(resistanceStateDto: ResistanceStateDto): ResistanceStateDto {
-        val espParameterDto = parameterService.getEspParameter()
-
+    suspend fun createAndSendRequestToEsp32(createResistanceStateDto: CreateResistanceStateDto): ResistanceStateDto {
         val resistanceState = ResistanceState(
             id = null,
             lastUpdate = now(),
-            currentState = resistanceStateDto.currentState
+            currentState = createResistanceStateDto.currentState
         )
 
-        // TODO envoyer la requête à l'ESP via MQTT ?
+        val currentState = if (createResistanceStateDto.currentState) "1" else "0"
+
+        val result = mqttClientHelper.publishSuspend(TOPIC_RESISTANCE, currentState, 2, false)
+
+        if (result.isFailure) {
+            val exception = result.exceptionOrNull()
+
+            val message = exception?.message ?: "Une erreur est survenue."
+
+            throw IotSolarException.noResponseFromEspForResistanceState(message)
+        }
 
         val newResistanceState = resistanceStateRepository.save(resistanceState)
 
         return resistanceStateDtoFactory.resistanceStateDto(newResistanceState)
-    }
-
-    fun sendRequestToEsp32(espParameterDto: EspParameterDto, currentState: Boolean) {
-
     }
 }

@@ -37,6 +37,13 @@ dependencies {
     runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.12.5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // MQTT
+    implementation("org.springframework.integration:spring-integration-mqtt:6.5.0")
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.0")
 }
 
 kotlin {
