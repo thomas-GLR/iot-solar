@@ -2,6 +2,7 @@ package org.exemple.iotsolarapi.temperatures.service
 
 import jakarta.transaction.Transactional
 import org.exemple.iotsolarapi.exception.IotSolarException
+import org.exemple.iotsolarapi.mqtt.service.MqttService
 import org.exemple.iotsolarapi.readingDevices.dao.model.ReadingDevice
 import org.exemple.iotsolarapi.readingDevices.dao.model.ReadingDeviceName
 import org.exemple.iotsolarapi.readingDevices.dao.repository.ReadingDeviceRepository
@@ -10,6 +11,8 @@ import org.exemple.iotsolarapi.temperatures.dao.repository.TemperatureRepository
 import org.exemple.iotsolarapi.temperatures.interfaces.dto.AggregationType
 import org.exemple.iotsolarapi.temperatures.interfaces.dto.CreateTemperatureDto
 import org.exemple.iotsolarapi.temperatures.interfaces.dto.TemperatureDto
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,6 +24,9 @@ class TemperatureService(
     val temperatureDtoFactory: TemperatureDtoFactory,
     val readingDeviceRepository: ReadingDeviceRepository
 ) {
+
+    private val logger: Logger = LoggerFactory.getLogger(TemperatureService::class.java)
+
     fun getAllTemperaturesForStartDateAndEndDate(
         aggregationType: AggregationType?,
         startDate: LocalDateTime?,
@@ -166,6 +172,9 @@ class TemperatureService(
             now(),
             readingDevice
         )
+
+        logger.info("Création de la température pour la sonde {} avec la valeur {} à la date {}",
+            readingDeviceName, sensorValue, temperature.collectionDate)
 
         temperatureRepository.save(temperature)
     }

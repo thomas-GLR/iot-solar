@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  iot-solar-api:
+    image: ghcr.io/thomas-glr/iot-solar-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+
+      # Base de données PostgreSQL (serveur externe)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT:-5432}/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+      # MQTT / Mosquitto
+      MQTT_BROKER_ADDRESS: ${MQTT_HOST}
+      MQTT_BROKER_PORT: ${MQTT_PORT:-8883}
+      MQTT_BROKER_HASSSL: "true"
+      MQTT_BROKER_USERNAME: ${MQTT_USER}
+      MQTT_BROKER_PASSWORD: ${MQTT_PASSWORD}
+
+      # JWT
+      SECRET_JWT_TOKEN: ${JWT_SECRET}
+
+    volumes:
+      - ./certs/ca.crt:/run/secrets/mqtt_ca_cert:ro
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    networks:
+      - app-network
+
+    extra_hosts:
+      - "raspberrypi.local:192.168.1.164"
+
+    # extra_hosts:
+    # Optionnel : si vos serveurs externes ont des IPs fixes
+    #   - "db-server:192.168.1.10"
+    #   - "mqtt-server:192.168.1.20"
+
+networks:
+  app-network:
+    driver: bridge

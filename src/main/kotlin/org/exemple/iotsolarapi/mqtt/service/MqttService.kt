@@ -38,11 +38,11 @@ class MqttService(
         if (mqttClient.isConnected) {
             topicByReadingDeviceName.forEach { (readingDeviceName, topic) ->
                 try {
+                    logger.info("Souscription au topic: {}", topic)
+
                     mqttClient.subscribe(topic, 1) { topicName, message ->
                         logger.info("Message reçu sur {}: {}", topicName, String(message.payload))
                         handleTopicTemperature(topicName, message, readingDeviceName)
-
-                        logger.info("Souscription au topic: {}", topic)
                     }
                 } catch (e: Exception) {
                     logger.error("Erreur lors de la souscription au topic {}: {}", topic, e.message)
@@ -60,6 +60,6 @@ class MqttService(
             stringValue.toDoubleOrNull() ?: throw IotSolarException.sensorValueIsNotADoubleValue(stringValue)
 
         temperatureService.createTemperature(sensorValue, readingDeviceName)
-        logger.debug("Température créée avec succès depuis le topic: {}", topic)
+        logger.info("Température créée avec succès depuis le topic: {}", topic)
     }
 }
