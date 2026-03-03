@@ -5,5 +5,6 @@ import java.time.LocalDateTime
 data class ResistanceStateDto(
     val id: Long?,
     val lastUpdate: LocalDateTime,
-    val currentState: Boolean,
+    val currentState: Boolean?,
+    val requestedState: Boolean,
 )
