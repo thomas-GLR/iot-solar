@@ -10,6 +10,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      TZ: Europe/Paris
 
       # Base de données PostgreSQL (serveur externe)
       SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT:-5432}/${DB_NAME}

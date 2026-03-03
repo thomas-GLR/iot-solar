@@ -38,7 +38,7 @@ class MqttConfiguration {
 
     @Bean
     fun mqttClient(): IMqttClient? {
-        logger.info("Création du client MQTT")
+        logger.info("Création du client MQTT à l'adresse {}:{} avec l'utilisateur {}", brokerAddress, port, userName)
 
         val connectionType = if (this.hasSSL != null && this.hasSSL) this.SSL else this.TCP
 
