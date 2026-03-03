@@ -172,6 +172,8 @@ cd iot-solar
 docker-compose up -d
 ```
 ### Mettre à jour sur le raspberry pi
+⚠️Attention en cas de modification du docker-compose.yml ou du .env il faut les transférer à nouveau sur le raspberry pi avant de pull la nouvelle image
+
 Mettre à jour l'image sur le repo github
 ``` bash
 docker buildx build --platform linux/arm64 -t ghcr.io/VOTRE_USERNAME/iot-solar-api:latest --push .

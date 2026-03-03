@@ -8,4 +8,5 @@ import java.util.Optional
 @Repository
 interface ResistanceStateRepository : JpaRepository<ResistanceState, Long> {
     fun findTopByOrderByLastUpdateDesc(): Optional<ResistanceState>
+    fun findFirstByOrderByLastUpdateDesc(): Optional<ResistanceState>
 }

@@ -1,5 +1,6 @@
 package org.exemple.iotsolarapi.security
 
+import jakarta.servlet.DispatcherType
 import org.exemple.iotsolarapi.authentication.service.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -29,6 +30,7 @@ class SpringSecurity(
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
+                    .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                     .requestMatchers("/").permitAll()
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/error").permitAll()
