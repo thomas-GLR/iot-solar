@@ -11,7 +11,8 @@ class ResistanceStateDtoFactory {
         return ResistanceStateDto(
             resistanceState.id,
             resistanceState.lastUpdate,
-            resistanceState.currentState
+            resistanceState.currentState,
+            resistanceState.requestedState
         )
     }
 

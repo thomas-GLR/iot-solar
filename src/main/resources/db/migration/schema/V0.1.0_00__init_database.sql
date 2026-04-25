@@ -25,30 +25,20 @@ CREATE SEQUENCE temperatures_id_seq INCREMENT BY 50 START 1;
 
 CREATE TABLE resistance_state
 (
-    id            int8         NOT NULL,
-    current_state VARCHAR(255) NOT NULL,
-    last_update   TIMESTAMP    NOT NULL,
+    id              int8      NOT NULL,
+    current_state   BOOLEAN   NULL,
+    requested_state BOOLEAN   NOT NULL,
+    last_update     TIMESTAMP NOT NULL,
     CONSTRAINT resistance_state_pkey PRIMARY KEY (id)
 );
 
 CREATE SEQUENCE resistance_state_id_seq INCREMENT BY 50 START 1;
 
-CREATE TABLE parameters
-(
-    id    int8         NOT NULL,
-    name  VARCHAR(255) NOT NULL,
-    value VARCHAR(255) NOT NULL,
-    CONSTRAINT parameters_pkey PRIMARY KEY (id),
-    CONSTRAINT parameters_name_uk UNIQUE (name)
-);
-
-CREATE SEQUENCE parameters_id_seq INCREMENT BY 50 START 1;
-
 CREATE TABLE users
 (
-    id       int8 NOT NULL,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    id            int8         NOT NULL,
+    username      VARCHAR(255) NOT NULL,
+    password      VARCHAR(255) NOT NULL,
     refresh_token VARCHAR(255),
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT users_username_uk UNIQUE (username)
