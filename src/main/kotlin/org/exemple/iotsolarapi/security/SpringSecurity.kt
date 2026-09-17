@@ -2,16 +2,17 @@ package org.exemple.iotsolarapi.security
 
 import jakarta.servlet.DispatcherType
 import org.exemple.iotsolarapi.authentication.service.JwtAuthenticationFilter
+import org.exemple.iotsolarapi.users.service.IotSolarUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
@@ -19,9 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 class SpringSecurity(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val userDetailsService: UserDetailsService
+    private val iotSolarUserDetailsService: IotSolarUserDetailsService
 )  {
 
     @Bean
@@ -33,6 +35,7 @@ class SpringSecurity(
                     .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                     .requestMatchers("/").permitAll()
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/error").permitAll()
                     .anyRequest().authenticated()
             }
@@ -50,7 +53,7 @@ class SpringSecurity(
 
     @Bean
     fun authenticationProvider(): AuthenticationProvider {
-        val authProvider = DaoAuthenticationProvider(userDetailsService)
+        val authProvider = DaoAuthenticationProvider(iotSolarUserDetailsService)
         authProvider.setPasswordEncoder(passwordEncoder())
         return authProvider
     }

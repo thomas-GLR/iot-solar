@@ -18,19 +18,32 @@ exit
 ## Script pour supprimer la BDD
 ``` postgresql
 drop table if exists esp_parameter cascade;
+drop table if exists user_roles cascade;
 drop table if exists users cascade;
+drop table if exists roles cascade;
 drop table if exists temperatures cascade;
 drop table if exists reading_device cascade;
 drop table if exists resistance_state cascade;
+drop table if exists parameters cascade;
 
 DROP SEQUENCE if exists esp_parameter_id_seq;
+DROP SEQUENCE if exists parameters_id_seq;
 DROP SEQUENCE if exists users_id_seq;
 DROP SEQUENCE if exists temperatures_id_seq;
 DROP SEQUENCE if exists reading_device_id_seq;
 DROP SEQUENCE if exists resistance_state_id_seq;
+DROP SEQUENCE if exists roles_id_seq;
+DROP SEQUENCE if exists roles_id_seq;
 
 delete from flyway_schema_history;
 ```
+
+## Démarrer l'application pour la première fois
+Un utilisateur admin est créé par défaut avec le login et le mot de passe renseigné en variable d'environnement.
+Il est fortement conseillé de changer le mot de passe après la première connexion via la route `/users/me/password`.
+
+Il faudra par la suite créer un nouvel utilisateur. Toutes les routes de l'API sont avec le rôle ROLE_USER.
+Il faudra modifier le rôle de l'utilisateur créé pour qu'il puisse accéder à l'API via la route `/admin/users/{id}/promote`.
 
 ## Mettre en place mqtt avec mosquitto et docker pour le local
 

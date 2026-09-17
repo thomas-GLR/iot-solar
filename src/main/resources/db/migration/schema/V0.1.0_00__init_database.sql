@@ -45,3 +45,22 @@ CREATE TABLE users
 );
 
 CREATE SEQUENCE users_id_seq INCREMENT BY 50 START 1;
+
+CREATE TABLE roles
+(
+    id   int8         NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    CONSTRAINT roles_pkey PRIMARY KEY (id),
+    CONSTRAINT roles_name_uk UNIQUE (name)
+);
+
+CREATE SEQUENCE roles_id_seq INCREMENT BY 1 START 1;
+
+CREATE TABLE user_roles
+(
+    user_id int8 NOT NULL
+        CONSTRAINT user_roles_user_id_fk REFERENCES users (id),
+    role_id int8 NOT NULL
+        CONSTRAINT user_roles_role_id_fk REFERENCES roles (id),
+    CONSTRAINT user_roles_pkey PRIMARY KEY (user_id, role_id)
+);

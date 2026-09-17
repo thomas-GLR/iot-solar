@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -40,6 +41,17 @@ class GlobalExceptionHandler {
                 status = HttpStatus.UNAUTHORIZED.value(),
                 error = "Unauthorized",
                 message = "Utilisateur non trouvé"
+            ))
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException::class)
+    fun handleAccessDenied(e: AuthorizationDeniedException): ResponseEntity<Any> {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse(
+                status = HttpStatus.FORBIDDEN.value(),
+                error = "Forbidden",
+                message = "Vous n'avez pas les droits nécessaires"
             ))
     }
 

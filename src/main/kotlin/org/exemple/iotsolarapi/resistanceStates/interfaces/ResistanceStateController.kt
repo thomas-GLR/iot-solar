@@ -5,9 +5,11 @@ import org.exemple.iotsolarapi.resistanceStates.interfaces.dto.ResistanceStateDt
 import org.exemple.iotsolarapi.resistanceStates.service.ResistanceAckNotifier
 import org.exemple.iotsolarapi.resistanceStates.service.ResistanceStateService
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
+@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 @RestController
 @RequestMapping("/resistance")
 class ResistanceStateController(
@@ -18,11 +20,6 @@ class ResistanceStateController(
     fun getLastResistanceState(): ResistanceStateDto {
         return resistanceStateService.getLastResistanceState()
     }
-
-//    @GetMapping
-//    fun getAllResistanceStates(): List<ResistanceStateDto> {
-//        return resistanceStateService.getAllResistanceState()
-//    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
