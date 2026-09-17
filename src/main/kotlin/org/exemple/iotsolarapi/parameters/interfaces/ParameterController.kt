@@ -4,8 +4,10 @@ import org.exemple.iotsolarapi.parameters.interfaces.dto.EspParameterDto
 import org.exemple.iotsolarapi.parameters.interfaces.dto.ParameterDto
 import org.exemple.iotsolarapi.parameters.service.ParameterService
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
+@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 @RestController
 @RequestMapping("/parameter")
 class ParameterController(

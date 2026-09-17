@@ -1,13 +1,14 @@
 package org.exemple.iotsolarapi.authentication.service
 
 import org.exemple.iotsolarapi.authentication.interfaces.dto.AuthResponse
+import org.exemple.iotsolarapi.roles.dao.model.RoleName
+import org.exemple.iotsolarapi.roles.dao.repository.RoleRepository
 import org.exemple.iotsolarapi.users.dao.model.User
 import org.exemple.iotsolarapi.users.dao.repository.UserRepository
+import org.exemple.iotsolarapi.users.service.IotSolarUserDetailsService
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -15,10 +16,12 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class AuthService(
     private val authenticationManager: AuthenticationManager,
-    private val userDetailsService: UserDetailsService,
+    private val iotSolarUserDetailsService: IotSolarUserDetailsService,
     private val jwtService: JwtService,
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder) {
+    private val passwordEncoder: PasswordEncoder,
+    private val roleRepository: RoleRepository
+) {
 
     fun login(username: String, password: String): AuthResponse {
         authenticationManager.authenticate(
@@ -28,7 +31,7 @@ class AuthService(
             )
         )
 
-        val userDetails = userDetailsService.loadUserByUsername(username)
+        val userDetails = iotSolarUserDetailsService.loadUserByUsername(username)
         val token = jwtService.generateToken(userDetails.username)
         val refreshToken = jwtService.generateRefreshToken(userDetails.username)
 
@@ -49,16 +52,24 @@ class AuthService(
             )
         }
 
+        val roleNew = roleRepository.findByName(RoleName.ROLE_NEW).orElseThrow {
+            ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Le rôle ROLE_NEW n'existe pas"
+            )
+        }
+
         val encodedPassword = passwordEncoder.encode(password)
         val newUser = User(
             username = username,
             password = encodedPassword,
-            refreshToken = null
+            refreshToken = null,
+            roles = mutableSetOf(roleNew)
         )
 
         userRepository.save(newUser)
 
-        val userDetails = userDetailsService.loadUserByUsername(newUser.username!!)
+        val userDetails = iotSolarUserDetailsService.loadUserByUsername(newUser.username!!)
         val token = jwtService.generateToken(userDetails.username)
         val refreshToken = jwtService.generateRefreshToken(userDetails.username)
 
@@ -71,7 +82,7 @@ class AuthService(
 
     fun refreshToken(refreshToken: String): AuthResponse {
         val username = jwtService.extractUsername(refreshToken)
-        val user = userDetailsService.loadUserByUsername(username)
+        val user = iotSolarUserDetailsService.loadUserByUsername(username)
 
         if (!jwtService.validateToken(refreshToken, user)) {
             throw IllegalArgumentException("Invalid refresh token")
