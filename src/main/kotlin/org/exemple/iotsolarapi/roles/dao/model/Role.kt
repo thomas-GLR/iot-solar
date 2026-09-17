@@ -13,16 +13,16 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "roles")
 @SequenceGenerator(
-    name = "roles_seq",
-    sequenceName = "roles_id_seq",
-    allocationSize = 1
+	name = "roles_seq",
+	sequenceName = "roles_id_seq",
+	allocationSize = 1
 )
 class Role(roleName: RoleName) {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_seq")
-    val id: Long? = null
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "roles_seq")
+	val id: Long? = null
 
-    @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
-    val name: RoleName = roleName
+	@Enumerated(EnumType.STRING)
+	@Column(unique = true, nullable = false)
+	val name: RoleName = roleName
 }

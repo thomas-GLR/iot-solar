@@ -11,25 +11,25 @@ import java.time.LocalDateTime
 @Repository
 class TemperatureRepositoryCriteriaImpl : TemperatureRepositoryCriteria {
 
-    @PersistenceContext
-    private lateinit var entityManager: EntityManager
+	@PersistenceContext
+	private lateinit var entityManager: EntityManager
 
-    override fun findTemperaturesOnPeriod(
-        startDate: LocalDateTime?,
-        endDate: LocalDateTime?
-    ): List<Temperature> {
-        val criteriaBuilder = entityManager.criteriaBuilder
-        val criteriaQuery = criteriaBuilder.createQuery(Temperature::class.java)
-        val root = criteriaQuery.from(Temperature::class.java)
+	override fun findTemperaturesOnPeriod(
+		startDate: LocalDateTime?,
+		endDate: LocalDateTime?
+	): List<Temperature> {
+		val criteriaBuilder = entityManager.criteriaBuilder
+		val criteriaQuery = criteriaBuilder.createQuery(Temperature::class.java)
+		val root = criteriaQuery.from(Temperature::class.java)
 
-        val predicates = mutableListOf<Predicate>()
+		val predicates = mutableListOf<Predicate>()
 
-        if (startDate != null && endDate != null) {
-            predicates.add(criteriaBuilder.between(root.get("collectionDate"), startDate, endDate))
-        }
+		if (startDate != null && endDate != null) {
+			predicates.add(criteriaBuilder.between(root.get("collectionDate"), startDate, endDate))
+		}
 
-        criteriaQuery.where(*predicates.toTypedArray())
+		criteriaQuery.where(*predicates.toTypedArray())
 
-        return entityManager.createQuery(criteriaQuery).resultList
-    }
+		return entityManager.createQuery(criteriaQuery).resultList
+	}
 }

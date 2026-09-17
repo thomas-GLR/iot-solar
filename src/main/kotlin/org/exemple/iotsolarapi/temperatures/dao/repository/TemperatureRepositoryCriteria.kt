@@ -5,5 +5,5 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface TemperatureRepositoryCriteria {
-    fun findTemperaturesOnPeriod(startDate: LocalDateTime?, endDate: LocalDateTime?): List<Temperature>
+	fun findTemperaturesOnPeriod(startDate: LocalDateTime?, endDate: LocalDateTime?): List<Temperature>
 }

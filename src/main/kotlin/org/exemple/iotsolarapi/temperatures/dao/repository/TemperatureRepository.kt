@@ -9,18 +9,19 @@ import java.time.LocalDateTime
 
 @Repository
 interface TemperatureRepository : JpaRepository<Temperature, Long>, TemperatureRepositoryCriteria {
-    fun findByCollectionDateBetween(
-        startDate: LocalDateTime,
-        endDate: LocalDateTime
-    ): List<Temperature>
+	fun findByCollectionDateBetween(
+		startDate: LocalDateTime,
+		endDate: LocalDateTime
+	): List<Temperature>
 
-    fun findByReadingDeviceAndCollectionDateBetweenOrderByCollectionDateDesc(
-        readingDevice: ReadingDevice,
-        startDate: LocalDateTime,
-        endDate: LocalDateTime
-    ): List<Temperature>
+	fun findByReadingDeviceAndCollectionDateBetweenOrderByCollectionDateDesc(
+		readingDevice: ReadingDevice,
+		startDate: LocalDateTime,
+		endDate: LocalDateTime
+	): List<Temperature>
 
-    @Query("""
+	@Query(
+		"""
         SELECT t.* FROM temperatures t
         INNER JOIN (
             SELECT reading_device_id, MAX(collection_date) as max_date
@@ -28,6 +29,7 @@ interface TemperatureRepository : JpaRepository<Temperature, Long>, TemperatureR
             GROUP BY reading_device_id
         ) latest ON t.reading_device_id = latest.reading_device_id 
                  AND t.collection_date = latest.max_date
-    """, nativeQuery = true)
-    fun findLatestTemperaturePerDevice(): List<Temperature>
+    """, nativeQuery = true
+	)
+	fun findLatestTemperaturePerDevice(): List<Temperature>
 }

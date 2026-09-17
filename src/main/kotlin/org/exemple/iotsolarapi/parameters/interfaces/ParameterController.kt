@@ -11,32 +11,32 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/parameter")
 class ParameterController(
-    private val parameterService: ParameterService,
+	private val parameterService: ParameterService,
 ) {
 
-    @GetMapping
-    fun getParameter(@RequestParam("name") name: String): ParameterDto {
-        return parameterService.getParameter(name)
-    }
+	@GetMapping
+	fun getParameter(@RequestParam("name") name: String): ParameterDto {
+		return parameterService.getParameter(name)
+	}
 
-    @GetMapping(path = ["/esp"])
-    fun getEspParameters(): EspParameterDto {
-        return parameterService.getEspParameter()
-    }
+	@GetMapping(path = ["/esp"])
+	fun getEspParameters(): EspParameterDto {
+		return parameterService.getEspParameter()
+	}
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createParameter(@RequestBody parameterDto: ParameterDto) {
-        parameterService.createParameter(parameterDto)
-    }
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	fun createParameter(@RequestBody parameterDto: ParameterDto) {
+		parameterService.createParameter(parameterDto)
+	}
 
-    @PutMapping
-    fun updateParameter(@RequestBody parameterDto: ParameterDto) {
-        parameterService.updateParameter(parameterDto)
-    }
+	@PutMapping
+	fun updateParameter(@RequestBody parameterDto: ParameterDto) {
+		parameterService.updateParameter(parameterDto)
+	}
 
-    @PutMapping(path = ["/esp"])
-    fun updateEspParameters(@RequestBody espParameterDto: EspParameterDto) {
-        parameterService.updateEspParameter(espParameterDto)
-    }
+	@PutMapping(path = ["/esp"])
+	fun updateEspParameters(@RequestBody espParameterDto: EspParameterDto) {
+		parameterService.updateEspParameter(espParameterDto)
+	}
 }

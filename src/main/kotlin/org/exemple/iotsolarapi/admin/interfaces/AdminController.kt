@@ -14,19 +14,19 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/admin")
 class AdminController(private val adminService: AdminService) {
 
-    @PostMapping("/users/{id}/reset-password")
-    fun resetPassword(@PathVariable id: Long)  {
-        adminService.resetPassword(id)
-    }
+	@PostMapping("/users/{id}/reset-password")
+	fun resetPassword(@PathVariable id: Long) {
+		adminService.resetPassword(id)
+	}
 
-    @PostMapping("/users/{id}/promote")
-    fun promote(@PathVariable id: Long, @RequestBody promoteUserDto: PromoteUserDto) {
-        // req.newRole() validated against an allow-list, never blindly trusted
-        adminService.promote(id, promoteUserDto)
-    }
+	@PostMapping("/users/{id}/promote")
+	fun promote(@PathVariable id: Long, @RequestBody promoteUserDto: PromoteUserDto) {
+		// req.newRole() validated against an allow-list, never blindly trusted
+		adminService.promote(id, promoteUserDto)
+	}
 
-    @DeleteMapping("/users/{id}/clear-roles")
-    fun clearRoles(@PathVariable id: Long) {
-        adminService.clearRoles(id)
-    }
+	@DeleteMapping("/users/{id}/clear-roles")
+	fun clearRoles(@PathVariable id: Long) {
+		adminService.clearRoles(id)
+	}
 }

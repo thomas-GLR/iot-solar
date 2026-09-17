@@ -22,49 +22,49 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 class SpringSecurity(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val iotSolarUserDetailsService: IotSolarUserDetailsService
-)  {
+	private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+	private val iotSolarUserDetailsService: IotSolarUserDetailsService
+) {
 
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { it.disable() }
-            .authorizeHttpRequests { auth ->
-                auth
-                    .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
-                    .requestMatchers("/").permitAll()
-                    .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/error").permitAll()
-                    .anyRequest().authenticated()
-            }
-            .logout {
-                it.logoutUrl("/logout").permitAll()
-            }
-            .sessionManagement { session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+	@Bean
+	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+		http
+			.csrf { it.disable() }
+			.authorizeHttpRequests { auth ->
+				auth
+					.dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+					.requestMatchers("/").permitAll()
+					.requestMatchers("/auth/**").permitAll()
+					.requestMatchers("/admin/**").hasRole("ADMIN")
+					.requestMatchers("/error").permitAll()
+					.anyRequest().authenticated()
+			}
+			.logout {
+				it.logoutUrl("/logout").permitAll()
+			}
+			.sessionManagement { session ->
+				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			}
+			.authenticationProvider(authenticationProvider())
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-        return http.build()
-    }
+		return http.build()
+	}
 
-    @Bean
-    fun authenticationProvider(): AuthenticationProvider {
-        val authProvider = DaoAuthenticationProvider(iotSolarUserDetailsService)
-        authProvider.setPasswordEncoder(passwordEncoder())
-        return authProvider
-    }
+	@Bean
+	fun authenticationProvider(): AuthenticationProvider {
+		val authProvider = DaoAuthenticationProvider(iotSolarUserDetailsService)
+		authProvider.setPasswordEncoder(passwordEncoder())
+		return authProvider
+	}
 
-    @Bean
-    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
-        return config.authenticationManager
-    }
+	@Bean
+	fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
+		return config.authenticationManager
+	}
 
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+	@Bean
+	fun passwordEncoder(): PasswordEncoder {
+		return BCryptPasswordEncoder()
+	}
 }

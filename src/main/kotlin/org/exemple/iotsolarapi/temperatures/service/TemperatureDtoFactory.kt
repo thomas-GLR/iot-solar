@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service
 
 @Service
 class TemperatureDtoFactory {
-    fun temperaturesDto(temperatures: List<Temperature>): List<TemperatureDto> {
-        return temperatures.map { temperature ->
-            TemperatureDto(
-                temperature.id,
-                temperature.value,
-                temperature.collectionDate,
-                temperature.readingDeviceName()
-            )
-        }
-    }
+	fun temperaturesDto(temperatures: List<Temperature>): List<TemperatureDto> {
+		return temperatures.map { temperature ->
+			TemperatureDto(
+				temperature.id,
+				temperature.value,
+				temperature.collectionDate,
+				temperature.readingDeviceName()
+			)
+		}
+	}
 }
