@@ -18,173 +18,177 @@ import java.time.LocalDateTime.now
 
 @Service
 class TemperatureService(
-    val temperatureRepository: TemperatureRepository,
-    val temperatureDtoFactory: TemperatureDtoFactory,
-    val readingDeviceRepository: ReadingDeviceRepository
+	val temperatureRepository: TemperatureRepository,
+	val temperatureDtoFactory: TemperatureDtoFactory,
+	val readingDeviceRepository: ReadingDeviceRepository
 ) {
 
-    private val logger: Logger = LoggerFactory.getLogger(TemperatureService::class.java)
+	private val logger: Logger = LoggerFactory.getLogger(TemperatureService::class.java)
 
-    fun getAllTemperaturesForStartDateAndEndDate(
-        aggregationType: AggregationType?,
-        startDate: LocalDateTime?,
-        endDate: LocalDateTime?
-    ): List<TemperatureDto> {
-        val temperatures = if (startDate != null && endDate != null) {
-            temperatureRepository.findByCollectionDateBetween(startDate, endDate)
-        } else {
-            temperatureRepository.findAll()
-        }
+	fun getAllTemperaturesForStartDateAndEndDate(
+		aggregationType: AggregationType?,
+		startDate: LocalDateTime?,
+		endDate: LocalDateTime?
+	): List<TemperatureDto> {
+		val temperatures = if (startDate != null && endDate != null) {
+			temperatureRepository.findByCollectionDateBetween(startDate, endDate)
+		} else {
+			temperatureRepository.findAll()
+		}
 
-        val temperaturesDto = mutableListOf<TemperatureDto>()
+		val temperaturesDto = mutableListOf<TemperatureDto>()
 
-        if (aggregationType != null) {
-            val temperaturesByDateByReadingDevice =
-                HashMap<ReadingDevice, HashMap<LocalDateTime, MutableList<Temperature>>>()
+		if (aggregationType != null) {
+			val temperaturesByDateByReadingDevice =
+				HashMap<ReadingDevice, HashMap<LocalDateTime, MutableList<Temperature>>>()
 
-            temperatures.forEach { temperature ->
-                val collectionDate = temperature.collectionDate
-                val readingDevice = temperature.readingDevice
+			temperatures.forEach { temperature ->
+				val collectionDate = temperature.collectionDate
+				val readingDevice = temperature.readingDevice
 
-                val dateKey = when (aggregationType) {
-                    AggregationType.DAYS -> LocalDateTime.of(
-                        collectionDate.year,
-                        collectionDate.monthValue,
-                        collectionDate.dayOfMonth,
-                        collectionDate.hour,
-                        collectionDate.minute
-                    )
+				val dateKey = when (aggregationType) {
+					AggregationType.DAYS -> LocalDateTime.of(
+						collectionDate.year,
+						collectionDate.monthValue,
+						collectionDate.dayOfMonth,
+						collectionDate.hour,
+						collectionDate.minute
+					)
 
-                    AggregationType.HOURS -> LocalDateTime.of(
-                        collectionDate.year,
-                        collectionDate.monthValue,
-                        collectionDate.dayOfMonth,
-                        collectionDate.hour,
-                        0
-                    )
+					AggregationType.HOURS -> LocalDateTime.of(
+						collectionDate.year,
+						collectionDate.monthValue,
+						collectionDate.dayOfMonth,
+						collectionDate.hour,
+						0
+					)
 
-                    AggregationType.MONTHS -> LocalDateTime.of(
-                        collectionDate.year,
-                        collectionDate.monthValue,
-                        collectionDate.dayOfMonth,
-                        0,
-                        0
-                    )
+					AggregationType.MONTHS -> LocalDateTime.of(
+						collectionDate.year,
+						collectionDate.monthValue,
+						collectionDate.dayOfMonth,
+						0,
+						0
+					)
 
-                    AggregationType.YEARS -> LocalDateTime.of(
-                        collectionDate.year,
-                        collectionDate.monthValue,
-                        1,
-                        0,
-                        0
-                    )
-                }
+					AggregationType.YEARS -> LocalDateTime.of(
+						collectionDate.year,
+						collectionDate.monthValue,
+						1,
+						0,
+						0
+					)
+				}
 
-                temperaturesByDateByReadingDevice.putIfAbsent(readingDevice, HashMap())
-                temperaturesByDateByReadingDevice[readingDevice]!!.putIfAbsent(dateKey, mutableListOf())
-                temperaturesByDateByReadingDevice[readingDevice]?.get(dateKey)?.add(temperature)
-            }
+				temperaturesByDateByReadingDevice.putIfAbsent(readingDevice, HashMap())
+				temperaturesByDateByReadingDevice[readingDevice]!!.putIfAbsent(dateKey, mutableListOf())
+				temperaturesByDateByReadingDevice[readingDevice]?.get(dateKey)?.add(temperature)
+			}
 
-            temperaturesByDateByReadingDevice.forEach { entryMapByReadingDevice ->
-                val readingDevice = entryMapByReadingDevice.key
+			temperaturesByDateByReadingDevice.forEach { entryMapByReadingDevice ->
+				val readingDevice = entryMapByReadingDevice.key
 
-                entryMapByReadingDevice.value.forEach { entryTemperaturesByDate ->
-                    val date = entryTemperaturesByDate.key
-                    val temperatures = entryTemperaturesByDate.value
+				entryMapByReadingDevice.value.forEach { entryTemperaturesByDate ->
+					val date = entryTemperaturesByDate.key
+					val temperatures = entryTemperaturesByDate.value
 
-                    val sum = temperatures.map { it.value }.average()
+					val sum = temperatures.map { it.value }.average()
 
-                    temperaturesDto.add(TemperatureDto(
-                        null,
-                        sum,
-                        date,
-                        readingDevice.name
-                    ))
-                }
-            }
-        } else {
-            temperaturesDto.addAll(temperatureDtoFactory.temperaturesDto(temperatures))
-        }
+					temperaturesDto.add(
+						TemperatureDto(
+							null,
+							sum,
+							date,
+							readingDevice.name
+						)
+					)
+				}
+			}
+		} else {
+			temperaturesDto.addAll(temperatureDtoFactory.temperaturesDto(temperatures))
+		}
 
-        temperaturesDto.sortByDescending { it.collectionDate }
+		temperaturesDto.sortByDescending { it.collectionDate }
 
-        return temperaturesDto
-    }
+		return temperaturesDto
+	}
 
-    /**
-     * Get temperatures detail for a period and a specific reading device.
-     *
-     * @param startDate the start date of the period.
-     * @param endDate the end date of the period.
-     * @param readingDeviceName the name of the reading device
-     * @return a list of temperatures for the table detail.
-     */
-    fun getTemperaturesDetail(
-        startDate: LocalDateTime,
-        endDate: LocalDateTime,
-        readingDeviceName: ReadingDeviceName
-    ): List<TemperatureDto> {
-        val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
-            IotSolarException.readingDeviceNameNotExist(readingDeviceName)
-        }
-        val temperatures = temperatureRepository.findByReadingDeviceAndCollectionDateBetweenOrderByCollectionDateDesc(
-            readingDevice,
-            startDate,
-            endDate
-        )
+	/**
+	 * Get temperatures detail for a period and a specific reading device.
+	 *
+	 * @param startDate the start date of the period.
+	 * @param endDate the end date of the period.
+	 * @param readingDeviceName the name of the reading device
+	 * @return a list of temperatures for the table detail.
+	 */
+	fun getTemperaturesDetail(
+		startDate: LocalDateTime,
+		endDate: LocalDateTime,
+		readingDeviceName: ReadingDeviceName
+	): List<TemperatureDto> {
+		val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
+			IotSolarException.readingDeviceNameNotExist(readingDeviceName)
+		}
+		val temperatures = temperatureRepository.findByReadingDeviceAndCollectionDateBetweenOrderByCollectionDateDesc(
+			readingDevice,
+			startDate,
+			endDate
+		)
 
-        return temperatureDtoFactory.temperaturesDto(temperatures)
-    }
+		return temperatureDtoFactory.temperaturesDto(temperatures)
+	}
 
-    /**
-     * Create the new temperature.
-     *
-     * @param createTemperatureDto dto to create the new temperature.
-     */
-    fun createTemperature(createTemperatureDto: CreateTemperatureDto) {
-        val readingDeviceName = createTemperatureDto.sensorName
+	/**
+	 * Create the new temperature.
+	 *
+	 * @param createTemperatureDto dto to create the new temperature.
+	 */
+	fun createTemperature(createTemperatureDto: CreateTemperatureDto) {
+		val readingDeviceName = createTemperatureDto.sensorName
 
-        val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
-            IotSolarException.readingDeviceNameNotExist(readingDeviceName)
-        }
+		val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
+			IotSolarException.readingDeviceNameNotExist(readingDeviceName)
+		}
 
-        val temperature = Temperature(
-            null,
-            createTemperatureDto.value,
-            now(),
-            readingDevice
-        )
+		val temperature = Temperature(
+			null,
+			createTemperatureDto.value,
+			now(),
+			readingDevice
+		)
 
-        temperatureRepository.save(temperature)
-    }
+		temperatureRepository.save(temperature)
+	}
 
-    @Transactional
-    fun createTemperature(sensorValue: Double, readingDeviceName: ReadingDeviceName) {
-        val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
-            IotSolarException.readingDeviceNameNotExist(readingDeviceName)
-        }
+	@Transactional
+	fun createTemperature(sensorValue: Double, readingDeviceName: ReadingDeviceName) {
+		val readingDevice = readingDeviceRepository.findByName(readingDeviceName).orElseThrow {
+			IotSolarException.readingDeviceNameNotExist(readingDeviceName)
+		}
 
-        val temperature = Temperature(
-            null,
-            sensorValue,
-            now(),
-            readingDevice
-        )
+		val temperature = Temperature(
+			null,
+			sensorValue,
+			now(),
+			readingDevice
+		)
 
-        logger.info("Création de la température pour la sonde {} avec la valeur {} à la date {}",
-            readingDeviceName, sensorValue, temperature.collectionDate)
+		logger.info(
+			"Création de la température pour la sonde {} avec la valeur {} à la date {}",
+			readingDeviceName, sensorValue, temperature.collectionDate
+		)
 
-        temperatureRepository.save(temperature)
-    }
+		temperatureRepository.save(temperature)
+	}
 
-    /**
-     * Get last temperatures of all reading device.
-     *
-     * @return a list of last temperatures for each reading device.
-     */
-    fun getLastTemperatures(): List<TemperatureDto> {
-        val temperatures = temperatureRepository.findLatestTemperaturePerDevice()
+	/**
+	 * Get last temperatures of all reading device.
+	 *
+	 * @return a list of last temperatures for each reading device.
+	 */
+	fun getLastTemperatures(): List<TemperatureDto> {
+		val temperatures = temperatureRepository.findLatestTemperaturePerDevice()
 
-        return temperatureDtoFactory.temperaturesDto(temperatures)
-    }
+		return temperatureDtoFactory.temperaturesDto(temperatures)
+	}
 }

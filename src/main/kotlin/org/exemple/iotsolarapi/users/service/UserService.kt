@@ -11,25 +11,25 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService(
-    val userRepository: UserRepository,
-    val passwordEncoder: PasswordEncoder
+	val userRepository: UserRepository,
+	val passwordEncoder: PasswordEncoder
 ) {
 
-    fun updatePassword(
-        currentUser: UserDetails,
-        changePasswordRequestDto: ChangePasswordRequestDto
-    ): ResponseEntity<String?> {
-        val user = userRepository.findByUsername(currentUser.username).orElseThrow {
-            UsernameNotFoundException("Connected user not found")
-        }
+	fun updatePassword(
+		currentUser: UserDetails,
+		changePasswordRequestDto: ChangePasswordRequestDto
+	): ResponseEntity<String?> {
+		val user = userRepository.findByUsername(currentUser.username).orElseThrow {
+			UsernameNotFoundException("Connected user not found")
+		}
 
-        if (!passwordEncoder.matches(changePasswordRequestDto.currentPassword, user.password)) {
-            return ResponseEntity.status(403).body<String?>("Current password incorrect")
-        }
+		if (!passwordEncoder.matches(changePasswordRequestDto.currentPassword, user.password)) {
+			return ResponseEntity.status(403).body<String?>("Current password incorrect")
+		}
 
-        user.setPassword(passwordEncoder.encode(changePasswordRequestDto.newPassword))
-        userRepository.save(user)
+		user.setPassword(passwordEncoder.encode(changePasswordRequestDto.newPassword))
+		userRepository.save(user)
 
-        return ResponseEntity.ok().build();
-    }
+		return ResponseEntity.ok().build();
+	}
 }

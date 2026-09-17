@@ -9,5 +9,5 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class IotSolarApiApplication
 
 fun main(args: Array<String>) {
-    runApplication<IotSolarApiApplication>(*args)
+	runApplication<IotSolarApiApplication>(*args)
 }

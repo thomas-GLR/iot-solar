@@ -9,28 +9,28 @@ import org.springframework.stereotype.Service
 
 @Service
 class MqttJsonHelper {
-    private val objectMapper = ObjectMapper()
+	private val objectMapper = ObjectMapper()
 
-    private val logger: Logger = LoggerFactory.getLogger(MqttJsonHelper::class.java)
+	private val logger: Logger = LoggerFactory.getLogger(MqttJsonHelper::class.java)
 
-    fun <T> isValideJson(jsonString: String?, targetClass: Class<T>): Boolean {
-        return convertJsonToObject(jsonString, targetClass) != null
-    }
+	fun <T> isValideJson(jsonString: String?, targetClass: Class<T>): Boolean {
+		return convertJsonToObject(jsonString, targetClass) != null
+	}
 
-    fun <T> convertJsonToObject(jsonString: String?, targetClass: Class<T>): T?  {
-        return try {
-            objectMapper.readValue(jsonString, targetClass)
-        } catch (_: JacksonException) {
-            null
-        }
-    }
+	fun <T> convertJsonToObject(jsonString: String?, targetClass: Class<T>): T? {
+		return try {
+			objectMapper.readValue(jsonString, targetClass)
+		} catch (_: JacksonException) {
+			null
+		}
+	}
 
-    fun <T> convertJsonToObjectOrThrow(jsonString: String, targetClass: Class<T>): T {
-        return try {
-            objectMapper.readValue(jsonString, targetClass)
-        } catch (e: JacksonException) {
-            logger.error("Erreur de conversion JSON vers {}: {}", targetClass.simpleName, e.message)
-            throw IotSolarException.cantConvertJsonToObject(jsonString, targetClass.name)
-        }
-    }
+	fun <T> convertJsonToObjectOrThrow(jsonString: String, targetClass: Class<T>): T {
+		return try {
+			objectMapper.readValue(jsonString, targetClass)
+		} catch (e: JacksonException) {
+			logger.error("Erreur de conversion JSON vers {}: {}", targetClass.simpleName, e.message)
+			throw IotSolarException.cantConvertJsonToObject(jsonString, targetClass.name)
+		}
+	}
 }

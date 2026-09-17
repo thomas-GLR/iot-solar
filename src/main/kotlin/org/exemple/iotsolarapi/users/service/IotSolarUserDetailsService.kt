@@ -13,23 +13,23 @@ import java.util.stream.Collectors
 
 @Service
 class IotSolarUserDetailsService(
-    val userRepository: UserRepository
+	val userRepository: UserRepository
 ) : UserDetailsService {
 
-    override fun loadUserByUsername(username: String): UserDetails {
-        val user = userRepository.findByUsername(username)
-            .orElseThrow {
-                UsernameNotFoundException("User not found")
-            }
+	override fun loadUserByUsername(username: String): UserDetails {
+		val user = userRepository.findByUsername(username)
+			.orElseThrow {
+				UsernameNotFoundException("User not found")
+			}
 
-        val authorities: MutableSet<GrantedAuthority?>? = user.roles.stream()
-            .map { role -> SimpleGrantedAuthority(role.name.name) }
-            .collect(Collectors.toSet())
+		val authorities: MutableSet<GrantedAuthority?>? = user.roles.stream()
+			.map { role -> SimpleGrantedAuthority(role.name.name) }
+			.collect(Collectors.toSet())
 
-        return User(
-            user.username,
-            user.password,
-            authorities
-        )
-    }
+		return User(
+			user.username,
+			user.password,
+			authorities
+		)
+	}
 }

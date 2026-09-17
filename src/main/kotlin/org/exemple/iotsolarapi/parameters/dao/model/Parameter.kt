@@ -12,12 +12,12 @@ import jakarta.persistence.Table
 @Table(name = "parameters")
 @SequenceGenerator(name = "parameters_seq", sequenceName = "parameters_id_seq", allocationSize = 50)
 class Parameter(
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "parameters_seq")
-    @Column(name = "id", nullable = false)
-    var id: Long? = null,
-    @Column(nullable = false)
-    var name: String,
-    @Column(nullable = false)
-    var value: String
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "parameters_seq")
+	@Column(name = "id", nullable = false)
+	var id: Long? = null,
+	@Column(nullable = false)
+	var name: String,
+	@Column(nullable = false)
+	var value: String
 )

@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/users")
 class UserController(
-    private val userService: UserService
+	private val userService: UserService
 ) {
-    @PreAuthorize("isAuthenticated()")
-    @PutMapping("/me/password")
-    fun updatePassword(
-        @AuthenticationPrincipal currentUser: UserDetails,
-        @RequestBody changePasswordRequestDto: ChangePasswordRequestDto
-    ): ResponseEntity<String?> {
-        return userService.updatePassword(currentUser, changePasswordRequestDto)
-    }
+	@PreAuthorize("isAuthenticated()")
+	@PutMapping("/me/password")
+	fun updatePassword(
+		@AuthenticationPrincipal currentUser: UserDetails,
+		@RequestBody changePasswordRequestDto: ChangePasswordRequestDto
+	): ResponseEntity<String?> {
+		return userService.updatePassword(currentUser, changePasswordRequestDto)
+	}
 }

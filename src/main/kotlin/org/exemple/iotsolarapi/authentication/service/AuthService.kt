@@ -15,86 +15,86 @@ import org.springframework.web.server.ResponseStatusException
 
 @Service
 class AuthService(
-    private val authenticationManager: AuthenticationManager,
-    private val iotSolarUserDetailsService: IotSolarUserDetailsService,
-    private val jwtService: JwtService,
-    private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder,
-    private val roleRepository: RoleRepository
+	private val authenticationManager: AuthenticationManager,
+	private val iotSolarUserDetailsService: IotSolarUserDetailsService,
+	private val jwtService: JwtService,
+	private val userRepository: UserRepository,
+	private val passwordEncoder: PasswordEncoder,
+	private val roleRepository: RoleRepository
 ) {
 
-    fun login(username: String, password: String): AuthResponse {
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                username,
-                password
-            )
-        )
+	fun login(username: String, password: String): AuthResponse {
+		authenticationManager.authenticate(
+			UsernamePasswordAuthenticationToken(
+				username,
+				password
+			)
+		)
 
-        val userDetails = iotSolarUserDetailsService.loadUserByUsername(username)
-        val token = jwtService.generateToken(userDetails.username)
-        val refreshToken = jwtService.generateRefreshToken(userDetails.username)
+		val userDetails = iotSolarUserDetailsService.loadUserByUsername(username)
+		val token = jwtService.generateToken(userDetails.username)
+		val refreshToken = jwtService.generateRefreshToken(userDetails.username)
 
-        return AuthResponse(
-            token = token,
-            refreshToken = refreshToken,
-            username = userDetails.username
-        )
-    }
+		return AuthResponse(
+			token = token,
+			refreshToken = refreshToken,
+			username = userDetails.username
+		)
+	}
 
-    fun register(username: String, password: String): AuthResponse {
-        val user = userRepository.findByUsername(username)
+	fun register(username: String, password: String): AuthResponse {
+		val user = userRepository.findByUsername(username)
 
-        if (user.isPresent) {
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "L'utilisateur existe déjà"
-            )
-        }
+		if (user.isPresent) {
+			throw ResponseStatusException(
+				HttpStatus.BAD_REQUEST,
+				"L'utilisateur existe déjà"
+			)
+		}
 
-        val roleNew = roleRepository.findByName(RoleName.ROLE_NEW).orElseThrow {
-            ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Le rôle ROLE_NEW n'existe pas"
-            )
-        }
+		val roleNew = roleRepository.findByName(RoleName.ROLE_NEW).orElseThrow {
+			ResponseStatusException(
+				HttpStatus.INTERNAL_SERVER_ERROR,
+				"Le rôle ROLE_NEW n'existe pas"
+			)
+		}
 
-        val encodedPassword = passwordEncoder.encode(password)
-        val newUser = User(
-            username = username,
-            password = encodedPassword,
-            refreshToken = null,
-            roles = mutableSetOf(roleNew)
-        )
+		val encodedPassword = passwordEncoder.encode(password)
+		val newUser = User(
+			username = username,
+			password = encodedPassword,
+			refreshToken = null,
+			roles = mutableSetOf(roleNew)
+		)
 
-        userRepository.save(newUser)
+		userRepository.save(newUser)
 
-        val userDetails = iotSolarUserDetailsService.loadUserByUsername(newUser.username!!)
-        val token = jwtService.generateToken(userDetails.username)
-        val refreshToken = jwtService.generateRefreshToken(userDetails.username)
+		val userDetails = iotSolarUserDetailsService.loadUserByUsername(newUser.username!!)
+		val token = jwtService.generateToken(userDetails.username)
+		val refreshToken = jwtService.generateRefreshToken(userDetails.username)
 
-        return AuthResponse(
-            token = token,
-            refreshToken = refreshToken,
-            username = userDetails.username
-        )
-    }
+		return AuthResponse(
+			token = token,
+			refreshToken = refreshToken,
+			username = userDetails.username
+		)
+	}
 
-    fun refreshToken(refreshToken: String): AuthResponse {
-        val username = jwtService.extractUsername(refreshToken)
-        val user = iotSolarUserDetailsService.loadUserByUsername(username)
+	fun refreshToken(refreshToken: String): AuthResponse {
+		val username = jwtService.extractUsername(refreshToken)
+		val user = iotSolarUserDetailsService.loadUserByUsername(username)
 
-        if (!jwtService.validateToken(refreshToken, user)) {
-            throw IllegalArgumentException("Invalid refresh token")
-        }
+		if (!jwtService.validateToken(refreshToken, user)) {
+			throw IllegalArgumentException("Invalid refresh token")
+		}
 
-        val newAccessToken = jwtService.generateToken(user.username)
-        val newRefreshToken = jwtService.generateRefreshToken(user.username)
+		val newAccessToken = jwtService.generateToken(user.username)
+		val newRefreshToken = jwtService.generateRefreshToken(user.username)
 
-        return AuthResponse(
-            token = newAccessToken,
-            refreshToken = newRefreshToken,
-            username = username
-        )
-    }
+		return AuthResponse(
+			token = newAccessToken,
+			refreshToken = newRefreshToken,
+			username = username
+		)
+	}
 }

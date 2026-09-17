@@ -14,34 +14,34 @@ import java.time.LocalDateTime
 @RestController
 @RequestMapping("/temperatures")
 class TemperatureController(
-    val temperatureService: TemperatureService
+	val temperatureService: TemperatureService
 ) {
-    @GetMapping
-    fun getAllTemperaturesForStartDateAndEndDate(
-        @RequestParam("aggregation_type", required = false) aggregationType: AggregationType?,
-        @RequestParam("start_date", required = false) startDate: LocalDateTime?,
-        @RequestParam("end_date", required = false) endDate: LocalDateTime?
-    ): List<TemperatureDto> {
-        return temperatureService.getAllTemperaturesForStartDateAndEndDate(aggregationType, startDate, endDate);
-    }
+	@GetMapping
+	fun getAllTemperaturesForStartDateAndEndDate(
+		@RequestParam("aggregation_type", required = false) aggregationType: AggregationType?,
+		@RequestParam("start_date", required = false) startDate: LocalDateTime?,
+		@RequestParam("end_date", required = false) endDate: LocalDateTime?
+	): List<TemperatureDto> {
+		return temperatureService.getAllTemperaturesForStartDateAndEndDate(aggregationType, startDate, endDate);
+	}
 
-    @GetMapping("/detail")
-    fun getTemperaturesDetail(
-        @RequestParam("first_date") firstDate: LocalDateTime,
-        @RequestParam("end_date") endDate: LocalDateTime,
-        @RequestParam("reading_device_name") readingDeviceName: ReadingDeviceName
-    ): List<TemperatureDto> {
-        return temperatureService.getTemperaturesDetail(firstDate, endDate, readingDeviceName);
-    }
+	@GetMapping("/detail")
+	fun getTemperaturesDetail(
+		@RequestParam("first_date") firstDate: LocalDateTime,
+		@RequestParam("end_date") endDate: LocalDateTime,
+		@RequestParam("reading_device_name") readingDeviceName: ReadingDeviceName
+	): List<TemperatureDto> {
+		return temperatureService.getTemperaturesDetail(firstDate, endDate, readingDeviceName);
+	}
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createTemperature(@RequestBody createTemperatureDto: CreateTemperatureDto) {
-        temperatureService.createTemperature(createTemperatureDto);
-    }
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	fun createTemperature(@RequestBody createTemperatureDto: CreateTemperatureDto) {
+		temperatureService.createTemperature(createTemperatureDto);
+	}
 
-    @GetMapping("/last-temperatures")
-    fun getLastTemperatures(): List<TemperatureDto> {
-        return temperatureService.getLastTemperatures()
-    }
+	@GetMapping("/last-temperatures")
+	fun getLastTemperatures(): List<TemperatureDto> {
+		return temperatureService.getLastTemperatures()
+	}
 }

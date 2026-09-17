@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/auth")
 class AuthController(
-    private val authService: AuthService
+	private val authService: AuthService
 ) {
-    @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest): AuthResponse {
-        return authService.login(loginRequest.username, loginRequest.password)
-    }
+	@PostMapping("/login")
+	fun login(@RequestBody loginRequest: LoginRequest): AuthResponse {
+		return authService.login(loginRequest.username, loginRequest.password)
+	}
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody registerRequest: RegisterRequest): AuthResponse {
-        return authService.register(registerRequest.username, registerRequest.password)
-    }
+	@PostMapping("/register")
+	@ResponseStatus(HttpStatus.CREATED)
+	fun register(@RequestBody registerRequest: RegisterRequest): AuthResponse {
+		return authService.register(registerRequest.username, registerRequest.password)
+	}
 
-    @PostMapping("/refresh")
-    fun refreshToken(@RequestBody request: RefreshTokenRequest): AuthResponse {
-        return authService.refreshToken(request.refreshToken)
-    }
+	@PostMapping("/refresh")
+	fun refreshToken(@RequestBody request: RefreshTokenRequest): AuthResponse {
+		return authService.refreshToken(request.refreshToken)
+	}
 }

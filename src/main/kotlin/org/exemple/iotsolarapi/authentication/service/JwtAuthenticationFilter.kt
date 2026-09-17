@@ -12,50 +12,50 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtService: JwtService,
-    private val iotSolarUserDetailsService: IotSolarUserDetailsService
+	private val jwtService: JwtService,
+	private val iotSolarUserDetailsService: IotSolarUserDetailsService
 ) : OncePerRequestFilter() {
 
-    override fun doFilterInternal(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        filterChain: FilterChain
-    ) {
-        // Ignorer les endpoints publics
-        val path = request.servletPath
-        if (path.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response)
-            return
-        }
+	override fun doFilterInternal(
+		request: HttpServletRequest,
+		response: HttpServletResponse,
+		filterChain: FilterChain
+	) {
+		// Ignorer les endpoints publics
+		val path = request.servletPath
+		if (path.startsWith("/api/auth/")) {
+			filterChain.doFilter(request, response)
+			return
+		}
 
-        val authHeader = request.getHeader("Authorization")
+		val authHeader = request.getHeader("Authorization")
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response)
-            return
-        }
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			filterChain.doFilter(request, response)
+			return
+		}
 
-        try {
-            val jwt = authHeader.substring(7)
-            val username = jwtService.extractUsername(jwt)
+		try {
+			val jwt = authHeader.substring(7)
+			val username = jwtService.extractUsername(jwt)
 
-            if (SecurityContextHolder.getContext().authentication == null) {
-                val userDetails = iotSolarUserDetailsService.loadUserByUsername(username)
+			if (SecurityContextHolder.getContext().authentication == null) {
+				val userDetails = iotSolarUserDetailsService.loadUserByUsername(username)
 
-                if (jwtService.validateToken(jwt, userDetails)) {
-                    val authToken = UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.authorities
-                    )
-                    authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-                    SecurityContextHolder.getContext().authentication = authToken
-                }
-            }
-        } catch (e: Exception) {
-            logger.error("Cannot set user authentication: ${e.message}")
-        }
+				if (jwtService.validateToken(jwt, userDetails)) {
+					val authToken = UsernamePasswordAuthenticationToken(
+						userDetails,
+						null,
+						userDetails.authorities
+					)
+					authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
+					SecurityContextHolder.getContext().authentication = authToken
+				}
+			}
+		} catch (e: Exception) {
+			logger.error("Cannot set user authentication: ${e.message}")
+		}
 
-        filterChain.doFilter(request, response)
-    }
+		filterChain.doFilter(request, response)
+	}
 }

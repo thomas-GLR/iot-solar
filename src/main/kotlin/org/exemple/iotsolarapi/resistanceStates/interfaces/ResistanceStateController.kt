@@ -13,24 +13,24 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 @RestController
 @RequestMapping("/resistance")
 class ResistanceStateController(
-    val resistanceStateService: ResistanceStateService,
-    val resistanceAckNotifier: ResistanceAckNotifier
+	val resistanceStateService: ResistanceStateService,
+	val resistanceAckNotifier: ResistanceAckNotifier
 ) {
-    @GetMapping
-    fun getLastResistanceState(): ResistanceStateDto {
-        return resistanceStateService.getLastResistanceState()
-    }
+	@GetMapping
+	fun getLastResistanceState(): ResistanceStateDto {
+		return resistanceStateService.getLastResistanceState()
+	}
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    suspend fun createAndSendRequestToEsp32(@RequestBody createResistanceStateDto: CreateResistanceStateDto): ResistanceStateDto {
-        return resistanceStateService.createAndSendRequestToEsp32(createResistanceStateDto)
-    }
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	suspend fun createAndSendRequestToEsp32(@RequestBody createResistanceStateDto: CreateResistanceStateDto): ResistanceStateDto {
+		return resistanceStateService.createAndSendRequestToEsp32(createResistanceStateDto)
+	}
 
-    @GetMapping("/ack/stream")
-    fun streamAck(): SseEmitter {
-        val emitter = SseEmitter(10 * 60_000L) // timeout  10 * 60s = 10 minutes
-        resistanceAckNotifier.addEmitter(emitter)
-        return emitter
-    }
+	@GetMapping("/ack/stream")
+	fun streamAck(): SseEmitter {
+		val emitter = SseEmitter(10 * 60_000L) // timeout  10 * 60s = 10 minutes
+		resistanceAckNotifier.addEmitter(emitter)
+		return emitter
+	}
 }

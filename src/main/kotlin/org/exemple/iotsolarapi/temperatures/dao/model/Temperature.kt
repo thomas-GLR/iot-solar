@@ -17,19 +17,19 @@ import java.time.LocalDateTime
 @Table(name = "temperatures")
 @SequenceGenerator(name = "temperatures_seq", sequenceName = "temperatures_id_seq", allocationSize = 50)
 class Temperature(
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "temperatures_seq")
-    @Column(name = "id", nullable = false)
-    var id: Long? = null,
-    @Column(nullable = false)
-    var value: Double,
-    @Column(nullable = false)
-    var collectionDate: LocalDateTime,
-    @ManyToOne
-    @JoinColumn(name="reading_device_id", nullable=false)
-    var readingDevice: ReadingDevice,
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "temperatures_seq")
+	@Column(name = "id", nullable = false)
+	var id: Long? = null,
+	@Column(nullable = false)
+	var value: Double,
+	@Column(nullable = false)
+	var collectionDate: LocalDateTime,
+	@ManyToOne
+	@JoinColumn(name = "reading_device_id", nullable = false)
+	var readingDevice: ReadingDevice,
 ) {
-    fun readingDeviceName(): ReadingDeviceName {
-        return readingDevice.name
-    }
+	fun readingDeviceName(): ReadingDeviceName {
+		return readingDevice.name
+	}
 }
